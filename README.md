@@ -1,4 +1,4 @@
-# 🥑 Envocado
+#   Envocado
 
 ### Don't let bad envs ruin your day.
 
