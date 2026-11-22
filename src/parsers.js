@@ -18,3 +18,28 @@ export function parseString(rawValue, rules, key) {
 
   return { value: str };
 }
+
+// 2. Number parser
+export function parseNumber(rawValue, rules, key) {
+  if (typeof rawValue === "string" && rawValue.trim() === "") {
+    return { error: `${key} must be a valid number.` };
+  }
+
+  const num = Number(rawValue);
+
+  if (!Number.isFinite(num)) {
+    return {
+      error: `${key} must be a valid number. Received: ${rawValue}`
+    };
+  }
+
+  if (rules.min !== undefined && num < rules.min) {
+    return { error: `${key} must be greater than or equal to ${rules.min}.` };
+  }
+
+  if (rules.max !== undefined && num > rules.max) {
+    return { error: `${key} must be less than or equal to ${rules.max}.` };
+  }
+
+  return { value: num };
+}
