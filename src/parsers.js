@@ -127,5 +127,27 @@ export function parseUrl(rawValue, rules, key) {
     };
   }
 
+  // Check allowed protocols if specified, e.g. ["http:", "https:"] or ["http", "https"]
+  if (rules.protocols && Array.isArray(rules.protocols)) {
+    let matched = false;
+    for (let i = 0; i < rules.protocols.length; i++) {
+      let expected = rules.protocols[i];
+      if (typeof expected === "string" && !expected.endsWith(":")) {
+        expected = expected + ":";
+      }
+      if (parsedUrl.protocol === expected) {
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      const allowed = rules.protocols.join(", ");
+      return {
+        error: `${key} must use one of the following protocols: ${allowed}. (Got ${parsedUrl.protocol})`
+      };
+    }
+  }
+
   return { value: parsedUrl.toString() };
 }
