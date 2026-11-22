@@ -1,0 +1,14 @@
+{
+  "name": "envocado-express-demo",
+  "version": "1.0.0",
+  "description": "Companion Express demo showing Envocado environment validation in action",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "envocado": "file:../..",
+    "express": "^4.21.2"
+  }
+}
