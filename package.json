@@ -1,0 +1,7 @@
+{
+  "name": "envocado",
+  "version": "1.0.0",
+  "description": "A lightweight, zero-dependency environment variable validation toolkit for Node.js.",
+  "type": "module",
+  "license": "MIT"
+}
