@@ -9,6 +9,15 @@ import {
   parseList,
 } from "./parsers.js";
 
+// Common placeholder substrings to detect in warnings
+const PLACEHOLDERS = [
+  "your_api_key",
+  "change_me",
+  "todo",
+  "insert_here",
+  "placeholder",
+];
+
 export function validateEnv(schema, source = process.env) {
   const config = {};
   const errors = [];
@@ -34,6 +43,20 @@ export function validateEnv(schema, source = process.env) {
         });
       }
       continue;
+    }
+
+    // Diagnostics / Warnings: detect obvious placeholder secrets or values
+    if (typeof rawValue === "string") {
+      const lower = rawValue.toLowerCase();
+      for (let p = 0; p < PLACEHOLDERS.length; p++) {
+        if (lower.includes(PLACEHOLDERS[p])) {
+          warnings.push({
+            variable: key,
+            message: `${key} appears to contain a placeholder value.`,
+          });
+          break;
+        }
+      }
     }
 
     let parsedResult;
