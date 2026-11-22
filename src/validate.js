@@ -5,6 +5,15 @@ export function validateEnv(schema, source = process.env) {
 
   for (const [key, rules] of Object.entries(schema)) {
     const rawValue = source[key];
+    const isMissing =
+      rawValue === undefined ||
+      rawValue === null ||
+      (typeof rawValue === "string" && rawValue.trim() === "");
+
+    if (isMissing) {
+      continue;
+    }
+
     config[key] = rawValue;
   }
 
