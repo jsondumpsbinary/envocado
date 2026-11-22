@@ -151,3 +151,30 @@ export function parseUrl(rawValue, rules, key) {
 
   return { value: parsedUrl.toString() };
 }
+
+// 8. List parser
+export function parseList(rawValue, rules, key) {
+  const separator = rules.separator || ",";
+  let items = [];
+
+  if (Array.isArray(rawValue)) {
+    items = rawValue;
+  } else if (typeof rawValue === "string") {
+    if (rawValue.trim() === "") {
+      return { value: [] };
+    }
+    const splitItems = rawValue.split(separator);
+    for (let i = 0; i < splitItems.length; i++) {
+      const trimmed = splitItems[i].trim();
+      if (trimmed.length > 0) {
+        items.push(trimmed);
+      }
+    }
+  } else {
+    return {
+      error: `${key} must be a comma-separated string or array.`
+    };
+  }
+
+  return { value: items };
+}
