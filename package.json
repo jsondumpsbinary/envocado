@@ -10,5 +10,13 @@
     "src",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsondumpsbinary/envocado.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jsondumpsbinary/envocado/issues"
+  },
+  "homepage": "https://github.com/jsondumpsbinary/envocado#readme"
 }
