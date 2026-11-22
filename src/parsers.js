@@ -66,3 +66,21 @@ export function parseInt(rawValue, rules, key) {
 
   return { value: num };
 }
+
+// 4. Port parser
+export function parsePort(rawValue, rules, key) {
+  const intResult = parseInt(rawValue, rules, key);
+  if (intResult.error) {
+    return intResult;
+  }
+
+  const port = intResult.value;
+
+  if (port < 1 || port > 65535) {
+    return {
+      error: `${key} must be a valid port number between 1 and 65535.`
+    };
+  }
+
+  return { value: port };
+}
