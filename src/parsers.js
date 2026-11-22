@@ -115,3 +115,17 @@ export function parseEnum(rawValue, rules, key) {
 
   return { value: rawValue };
 }
+
+// 7. URL parser
+export function parseUrl(rawValue, rules, key) {
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(rawValue);
+  } catch (err) {
+    return {
+      error: `${key} must be a valid URL. Received: ${rawValue}`
+    };
+  }
+
+  return { value: parsedUrl.toString() };
+}
