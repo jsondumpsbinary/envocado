@@ -31,5 +31,8 @@
     "zero-dependency",
     "safe-env"
   ],
-  "author": ""
+  "author": "",
+  "scripts": {
+    "test": "node --test test/"
+  }
 }
