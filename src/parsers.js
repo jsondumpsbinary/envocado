@@ -1,4 +1,14 @@
 // Helper parsers for each supported data type.
+// Each parser checks the raw value against rules and returns:
+// { error: "error message" } OR { value: parsedValue }
+
+// Helper function to format error messages safely without leaking secrets.
+function getSafeMessage(rules, defaultMsg, safeMsg) {
+  if (rules.secret) {
+    return safeMsg;
+  }
+  return defaultMsg;
+}
 
 // 1. String parser
 export function parseString(rawValue, rules, key) {
@@ -34,7 +44,11 @@ export function parseNumber(rawValue, rules, key) {
 
   if (!Number.isFinite(num)) {
     return {
-      error: `${key} must be a valid number. Received: ${rawValue}`
+      error: getSafeMessage(
+        rules,
+        `${key} must be a valid number. Received: ${rawValue}`,
+        `${key} must be a valid number.`
+      )
     };
   }
 
@@ -51,6 +65,7 @@ export function parseNumber(rawValue, rules, key) {
 
 // 3. Integer parser
 export function parseInt(rawValue, rules, key) {
+  // First check if it is a number
   const numResult = parseNumber(rawValue, rules, key);
   if (numResult.error) {
     return numResult;
@@ -60,7 +75,11 @@ export function parseInt(rawValue, rules, key) {
 
   if (!Number.isInteger(num)) {
     return {
-      error: `${key} must be an integer (received decimal: ${rawValue}).`
+      error: getSafeMessage(
+        rules,
+        `${key} must be an integer (received decimal: ${rawValue}).`,
+        `${key} must be an integer.`
+      )
     };
   }
 
@@ -109,7 +128,11 @@ export function parseEnum(rawValue, rules, key) {
   if (!rules.values.includes(rawValue)) {
     const allowed = rules.values.join(", ");
     return {
-      error: `${key} must be one of: ${allowed}. Received: ${rawValue}`
+      error: getSafeMessage(
+        rules,
+        `${key} must be one of: ${allowed}. Received: ${rawValue}`,
+        `${key} must be one of: ${allowed}.`
+      )
     };
   }
 
@@ -123,7 +146,11 @@ export function parseUrl(rawValue, rules, key) {
     parsedUrl = new URL(rawValue);
   } catch (err) {
     return {
-      error: `${key} must be a valid URL. Received: ${rawValue}`
+      error: getSafeMessage(
+        rules,
+        `${key} must be a valid URL. Received: ${rawValue}`,
+        `${key} must be a valid URL.`
+      )
     };
   }
 
@@ -143,9 +170,10 @@ export function parseUrl(rawValue, rules, key) {
 
     if (!matched) {
       const allowed = rules.protocols.join(", ");
-      return {
-        error: `${key} must use one of the following protocols: ${allowed}. (Got ${parsedUrl.protocol})`
-      };
+      const msg = rules.secret
+        ? `${key} must use one of the following protocols: ${allowed}.`
+        : `${key} must use one of the following protocols: ${allowed}. (Got ${parsedUrl.protocol})`;
+      return { error: msg };
     }
   }
 
