@@ -19,18 +19,36 @@ const PLACEHOLDERS = [
 ];
 
 export function validateEnv(schema, source = process.env) {
+  if (!schema || typeof schema !== "object") {
+    return {
+      ok: false,
+      config: {},
+      errors: [{ variable: "schema", message: "Schema must be a valid object." }],
+      warnings: [],
+    };
+  }
+
+  const envSource = source !== null && source !== undefined ? source : process.env;
   const config = {};
   const errors = [];
   const warnings = [];
 
   for (const [key, rules] of Object.entries(schema)) {
-    const rawValue = source[key];
+    if (!rules || typeof rules !== "object") {
+      errors.push({
+        variable: key,
+        message: `${key} rule definition must be an object.`,
+      });
+      continue;
+    }
+
+    const rawValue = envSource[key];
     const isMissing =
       rawValue === undefined ||
       rawValue === null ||
       (typeof rawValue === "string" && rawValue.trim() === "");
 
-    // Check conditional requirements (requiredIf)
+    // 1. Check conditional requirements (requiredIf)
     if (rules.requiredIf && isMissing) {
       const conditionValue = source[rules.requiredIf];
       if (conditionValue === rules.requiredValue) {
@@ -42,6 +60,7 @@ export function validateEnv(schema, source = process.env) {
       }
     }
 
+    // 2. Handle missing variables
     if (isMissing) {
       if (rules.default !== undefined) {
         config[key] = rules.default;
@@ -54,10 +73,11 @@ export function validateEnv(schema, source = process.env) {
           message: `${key} is required.`,
         });
       }
+
       continue;
     }
 
-    // Diagnostics / Warnings: detect obvious placeholder secrets or values
+    // 3. Diagnostics / Warnings: detect obvious placeholder secrets or values
     if (typeof rawValue === "string") {
       const lower = rawValue.toLowerCase();
       for (let p = 0; p < PLACEHOLDERS.length; p++) {
@@ -71,6 +91,7 @@ export function validateEnv(schema, source = process.env) {
       }
     }
 
+    // 4. Validate and parse the variable based on rules.type
     let parsedResult;
 
     switch (rules.type) {
@@ -114,6 +135,7 @@ export function validateEnv(schema, source = process.env) {
         continue;
     }
 
+    // If parser returned an error, collect it and continue
     if (parsedResult.error) {
       errors.push({
         variable: key,
@@ -124,7 +146,7 @@ export function validateEnv(schema, source = process.env) {
 
     let value = parsedResult.value;
 
-    // Optional custom validator function
+    // 5. Optional custom validator function
     if (typeof rules.validate === "function") {
       const isValid = rules.validate(value);
       if (!isValid) {
@@ -140,6 +162,7 @@ export function validateEnv(schema, source = process.env) {
   }
 
   const ok = errors.length === 0;
+
   return {
     ok,
     config: ok ? config : {},
