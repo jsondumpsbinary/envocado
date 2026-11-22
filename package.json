@@ -18,5 +18,18 @@
   "bugs": {
     "url": "https://github.com/jsondumpsbinary/envocado/issues"
   },
-  "homepage": "https://github.com/jsondumpsbinary/envocado#readme"
+  "homepage": "https://github.com/jsondumpsbinary/envocado#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "env",
+    "environment",
+    "validation",
+    "schema",
+    "configuration",
+    "zero-dependency",
+    "safe-env"
+  ],
+  "author": ""
 }
