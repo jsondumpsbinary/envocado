@@ -48,3 +48,21 @@ export function parseNumber(rawValue, rules, key) {
 
   return { value: num };
 }
+
+// 3. Integer parser
+export function parseInt(rawValue, rules, key) {
+  const numResult = parseNumber(rawValue, rules, key);
+  if (numResult.error) {
+    return numResult;
+  }
+
+  const num = numResult.value;
+
+  if (!Number.isInteger(num)) {
+    return {
+      error: `${key} must be an integer (received decimal: ${rawValue}).`
+    };
+  }
+
+  return { value: num };
+}
