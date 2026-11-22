@@ -21,7 +21,12 @@ export function parseString(rawValue, rules, key) {
 
 // 2. Number parser
 export function parseNumber(rawValue, rules, key) {
-  if (typeof rawValue === "string" && rawValue.trim() === "") {
+  // Reject booleans, non-number objects, and whitespace-only strings
+  if (
+    typeof rawValue === "boolean" ||
+    (typeof rawValue === "string" && rawValue.trim() === "") ||
+    (typeof rawValue !== "string" && typeof rawValue !== "number")
+  ) {
     return { error: `${key} must be a valid number.` };
   }
 
