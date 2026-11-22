@@ -30,6 +30,18 @@ export function validateEnv(schema, source = process.env) {
       rawValue === null ||
       (typeof rawValue === "string" && rawValue.trim() === "");
 
+    // Check conditional requirements (requiredIf)
+    if (rules.requiredIf && isMissing) {
+      const conditionValue = source[rules.requiredIf];
+      if (conditionValue === rules.requiredValue) {
+        errors.push({
+          variable: key,
+          message: `${key} is required when ${rules.requiredIf} is "${rules.requiredValue}".`,
+        });
+        continue;
+      }
+    }
+
     if (isMissing) {
       if (rules.default !== undefined) {
         config[key] = rules.default;
