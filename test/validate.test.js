@@ -155,3 +155,72 @@ test("Booleans - accepts true/false strings and boolean literals, rejects others
   assert.strictEqual(resInvalid.ok, false);
   assert.match(resInvalid.errors[0].message, /must be either "true" or "false"/);
 });
+
+test("Enums - validates against allowed values and lists them on error", () => {
+  const schema = {
+    ENV: {
+      type: "enum",
+      values: ["development", "staging", "production"],
+      default: "development",
+    },
+  };
+
+  const resValid = validateEnv(schema, { ENV: "production" });
+  assert.strictEqual(resValid.ok, true);
+  assert.strictEqual(resValid.config.ENV, "production");
+
+  const resBad = validateEnv(schema, { ENV: "local" });
+  assert.strictEqual(resBad.ok, false);
+  assert.match(resBad.errors[0].message, /development, staging, production/);
+});
+
+test("URLs - validates standard URLs and protocol restrictions", () => {
+  const schema = {
+    SITE_URL: { type: "url", required: true, protocols: ["http:", "https:"] },
+  };
+
+  const resValid = validateEnv(schema, { SITE_URL: "https://example.com/api" });
+  assert.strictEqual(resValid.ok, true);
+
+  const resInvalid = validateEnv(schema, { SITE_URL: "not-a-valid-url" });
+  assert.strictEqual(resInvalid.ok, false);
+
+  const resProto = validateEnv(schema, { SITE_URL: "ftp://files.example.com" });
+  assert.strictEqual(resProto.ok, false);
+  assert.match(resProto.errors[0].message, /must use one of the following protocols/);
+});
+
+test("Lists - parses delimited strings and trims whitespace", () => {
+  const schema = {
+    ALLOWED_ORIGINS: { type: "list", separator: "," },
+  };
+
+  const res = validateEnv(schema, {
+    ALLOWED_ORIGINS: "http://localhost:3000, https://app.example.com , https://admin.example.com",
+  });
+  assert.strictEqual(res.ok, true);
+  assert.deepStrictEqual(res.config.ALLOWED_ORIGINS, [
+    "http://localhost:3000",
+    "https://app.example.com",
+    "https://admin.example.com",
+  ]);
+});
+
+test("Secret protection - never exposes secret values in error messages", () => {
+  const secretValue = "super_secret_token_12345";
+  const schema = {
+    SECRET_KEY: {
+      type: "number",
+      required: true,
+      secret: true,
+    },
+  };
+
+  const res = validateEnv(schema, {
+    SECRET_KEY: secretValue,
+  });
+
+  assert.strictEqual(res.ok, false);
+  const errorMsg = res.errors[0].message;
+  assert.strictEqual(errorMsg.includes(secretValue), false);
+});
