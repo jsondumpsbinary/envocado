@@ -11,6 +11,11 @@ export function validateEnv(schema, source = process.env) {
       (typeof rawValue === "string" && rawValue.trim() === "");
 
     if (isMissing) {
+      if (rules.default !== undefined) {
+        config[key] = rules.default;
+        continue;
+      }
+
       if (rules.required) {
         errors.push({
           variable: key,
