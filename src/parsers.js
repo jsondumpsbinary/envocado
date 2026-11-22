@@ -99,3 +99,19 @@ export function parseBoolean(rawValue, rules, key) {
     error: `${key} must be either "true" or "false".`
   };
 }
+
+// 6. Enum parser
+export function parseEnum(rawValue, rules, key) {
+  if (!Array.isArray(rules.values)) {
+    return { error: `${key} schema is missing an allowed 'values' array.` };
+  }
+
+  if (!rules.values.includes(rawValue)) {
+    const allowed = rules.values.join(", ");
+    return {
+      error: `${key} must be one of: ${allowed}. Received: ${rawValue}`
+    };
+  }
+
+  return { value: rawValue };
+}
