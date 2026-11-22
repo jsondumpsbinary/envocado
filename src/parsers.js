@@ -84,3 +84,18 @@ export function parsePort(rawValue, rules, key) {
 
   return { value: port };
 }
+
+// 5. Boolean parser
+export function parseBoolean(rawValue, rules, key) {
+  if (rawValue === true || rawValue === "true") {
+    return { value: true };
+  }
+
+  if (rawValue === false || rawValue === "false") {
+    return { value: false };
+  }
+
+  return {
+    error: `${key} must be either "true" or "false".`
+  };
+}
