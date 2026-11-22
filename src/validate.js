@@ -122,7 +122,21 @@ export function validateEnv(schema, source = process.env) {
       continue;
     }
 
-    config[key] = parsedResult.value;
+    let value = parsedResult.value;
+
+    // Optional custom validator function
+    if (typeof rules.validate === "function") {
+      const isValid = rules.validate(value);
+      if (!isValid) {
+        errors.push({
+          variable: key,
+          message: `${key} failed custom validation.`,
+        });
+        continue;
+      }
+    }
+
+    config[key] = value;
   }
 
   const ok = errors.length === 0;
